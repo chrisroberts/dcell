@@ -7,5 +7,8 @@ gem 'reel',          :git => 'git://github.com/celluloid/reel'
 
 gem 'jruby-openssl', :platform => :jruby
 
+# For ZeroMQ 3.2.x
+gem 'ffi-rzmq', :git => 'git://github.com/chuckremes/ffi-rzmq', :branch => 'master'
+
 # Specify your gem's dependencies in dcell.gemspec
 gemspec

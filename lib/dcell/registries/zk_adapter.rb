@@ -36,40 +36,37 @@ module DCell
         end
 
         @zk = ZK.new(*servers)
-        @node_registry = NodeRegistry.new(@zk, @base_path)
-        @global_registry = GlobalRegistry.new(@zk, @base_path)
+        @node_registry = Registry.new(@zk, @base_path, :nodes)
+        @global_registry = Registry.new(@zk, @base_path, :globals)
       end
 
-      def clear_nodes
-        @node_registry.clear
-      end
-
-      def clear_globals
-        @global_registry.clear
-      end
-
-      class NodeRegistry
-        def initialize(zk, base_path)
-          @zk, @base_path = zk, "#{base_path}/nodes"
+      class Registry
+        def initialize(zk, base_path, name)
+          @zk = zk
+          @base_path = File.join(base_path, name.to_s)
           @zk.mkdir_p @base_path
         end
 
-        def get(node_id)
-          result, _ = @zk.get("#{@base_path}/#{node_id}")
+        def get(key)
+          result, _ = @zk.get("#{@base_path}/#{key}")
           result
         rescue ZK::Exceptions::NoNode
         end
 
-        def set(node_id, addr)
-          path = "#{@base_path}/#{node_id}"
-          @zk.set path, addr
+        def set(key, value)
+          path = "#{@base_path}/#{key}"
+          @zk.set path, value
         rescue ZK::Exceptions::NoNode
-          @zk.create path, addr
+          @zk.create path, value
         end
 
-        def nodes
+        def all
           @zk.children @base_path
         end
+
+        # DCell registry behaviors
+        alias_method :nodes, :all
+        alias_method :global_keys, :all
 
         def clear
           @zk.rm_rf @base_path
@@ -80,43 +77,13 @@ module DCell
       def get_node(node_id);       @node_registry.get(node_id) end
       def set_node(node_id, addr); @node_registry.set(node_id, addr) end
       def nodes;                   @node_registry.nodes end
-
-      class GlobalRegistry
-        def initialize(zk, base_path)
-          @zk, @base_path = zk, "#{base_path}/globals"
-          @zk.mkdir_p @base_path
-        end
-
-        def get(key)
-          value, _ = @zk.get "#{@base_path}/#{key}"
-          Marshal.load value
-        rescue ZK::Exceptions::NoNode
-        end
-
-        # Set a global value
-        def set(key, value)
-          path = "#{@base_path}/#{key}"
-          string = Marshal.dump value
-
-          @zk.set path, string
-        rescue ZK::Exceptions::NoNode
-          @zk.create path, string
-        end
-
-        # The keys to all globals in the system
-        def global_keys
-          @zk.children(@base_path)
-        end
-
-        def clear
-          @zk.rm_rf @base_path
-          @zk.mkdir_p @base_path
-        end
-      end
+      def clear_nodes;             @node_registry.clear end
 
       def get_global(key);        @global_registry.get(key) end
       def set_global(key, value); @global_registry.set(key, value) end
       def global_keys;            @global_registry.global_keys end
+      def clear_globals;          @global_registry.clear end
+
     end
   end
 end
