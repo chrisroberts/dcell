@@ -3,13 +3,13 @@ $:.push File.expand_path("../lib", __FILE__)
 require "dcell/version"
 
 Gem::Specification.new do |gem|
-  gem.name        = "dcell"
+  gem.name        = "cr-dcell"
   gem.version     = DCell::VERSION
   gem.authors     = ["Tony Arcieri"]
   gem.email       = ["tony.arcieri@gmail.com"]
   gem.homepage    = "http://github.com/celluloid/dcell"
-  gem.summary     = "An asynchronous distributed object framework based on Celluloid"
-  gem.description = "DCell is an distributed object framework based on Celluloid built on 0MQ and Zookeeper"
+  gem.summary     = "Custom edge version of dcell"
+  gem.description = "Custom edge version of dcell"
 
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
